@@ -36,7 +36,7 @@
 
 ```env
 # Remnawave
-REMNAWAVE_API_URL=https://panel.example.com/api
+REMNAWAVE_API_URL=https://panel.example.com
 REMNAWAVE_API_KEY=remnawave_api_key
 
 # Telegram (токен от @BotFather)

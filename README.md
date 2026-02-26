@@ -38,7 +38,7 @@ Copy [`.env.example`](.env.example) to `.env` and fill in your values:
 
 ```env
 # Remnawave panel URL and API key
-REMNAWAVE_API_URL=https://panel.example.com/api
+REMNAWAVE_API_URL=https://panel.example.com
 REMNAWAVE_API_KEY=remnawave_api_key
 
 # Telegram bot token from @BotFather
