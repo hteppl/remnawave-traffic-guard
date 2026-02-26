@@ -16,12 +16,12 @@ GB = 1024 * 1024 * 1024
 
 class TrafficMonitor:
     def __init__(
-        self,
-        config: Config,
-        cache: RedisCache,
-        remnawave: RemnawaveClient,
-        notifier: Notifier,
-        translator: Translator,
+            self,
+            config: Config,
+            cache: RedisCache,
+            remnawave: RemnawaveClient,
+            notifier: Notifier,
+            translator: Translator,
     ):
         self._config = config
         self._cache = cache
@@ -117,9 +117,9 @@ class TrafficMonitor:
         }
 
     async def _check_interval_spike(
-        self, previous: dict, current_traffic: int, min_traffic_bytes: float,
-        tg_id: int, username: str, user_uuid: str | None,
-        yesterday_str: str, today_str: str, time_str: str,
+            self, previous: dict, current_traffic: int, min_traffic_bytes: float,
+            tg_id: int, username: str, user_uuid: str | None,
+            yesterday_str: str, today_str: str, time_str: str,
     ) -> int:
         previous_traffic = previous.get("lifetime_traffic_bytes", 0) or 0
         traffic_diff = current_traffic - previous_traffic
@@ -152,13 +152,14 @@ class TrafficMonitor:
         )
 
         await self._notifier.send_alert(text)
-        logger.warning(f"Traffic spike: {username} +{traffic_diff_gb:.2f} GB in {self._config.check_interval_minutes} min (alert #{alert_count})")
+        logger.warning(
+            f"Traffic spike: {username} +{traffic_diff_gb:.2f} GB in {self._config.check_interval_minutes} min (alert #{alert_count})")
         return 1
 
     async def _build_snapshot_and_check_total(
-        self, username: str, tg_id: int, current_traffic: int, min_traffic_bytes: float,
-        previous: dict | None, now: datetime, now_utc: datetime,
-        today_str: str, time_str: str, user_uuid: str | None,
+            self, username: str, tg_id: int, current_traffic: int, min_traffic_bytes: float,
+            previous: dict | None, now: datetime, now_utc: datetime,
+            today_str: str, time_str: str, user_uuid: str | None,
     ) -> tuple[dict, int]:
         snapshot = {
             "username": username,
@@ -214,7 +215,8 @@ class TrafficMonitor:
                 )
 
                 await self._notifier.send_alert(text)
-                logger.warning(f"Total limit exceeded: {username} {traffic_diff_gb:.2f} GB in {int(hours_passed)} h (alert #{alert_count})")
+                logger.warning(
+                    f"Total limit exceeded: {username} {traffic_diff_gb:.2f} GB in {int(hours_passed)} h (alert #{alert_count})")
 
         if total_limit_exceeded or hours_passed >= self._config.total_check_hours:
             snapshot["total_check_traffic_bytes"] = current_traffic

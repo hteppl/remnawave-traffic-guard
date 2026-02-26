@@ -39,9 +39,9 @@ class RemnawaveClient:
                 for user in users:
                     traffic = user.get("userTraffic") or {}
                     lifetime_traffic = (
-                        user.get("lifetimeUsedTrafficBytes")
-                        or traffic.get("lifetimeUsedTrafficBytes")
-                        or 0
+                            user.get("lifetimeUsedTrafficBytes")
+                            or traffic.get("lifetimeUsedTrafficBytes")
+                            or 0
                     )
                     all_users.append({
                         "uuid": user.get("uuid"),
@@ -65,11 +65,11 @@ class RemnawaveClient:
         return all_users
 
     async def fetch_user_nodes(
-        self,
-        user_uuid: str,
-        start_date: str,
-        end_date: str,
-        top_nodes_limit: int = 10,
+            self,
+            user_uuid: str,
+            start_date: str,
+            end_date: str,
+            top_nodes_limit: int = 10,
     ) -> list[dict]:
         try:
             stats = await self._sdk.bandwidthstats.get_stats_user_usage(

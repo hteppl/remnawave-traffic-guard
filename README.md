@@ -82,27 +82,27 @@ REDIS_URL=redis://redis:6379/0
 
 ### Configuration Reference
 
-| Variable                 | Description                                  | Default              | Required |
-|--------------------------|----------------------------------------------|----------------------|----------|
-| `REMNAWAVE_API_URL`      | Remnawave API endpoint                       | -                    | Yes      |
-| `REMNAWAVE_API_KEY`      | Remnawave API token                          | -                    | Yes      |
-| `TELEGRAM_BOT_TOKEN`     | Telegram bot token from @BotFather           | -                    | Yes      |
-| `TELEGRAM_CHAT_ID`       | Chat ID for notifications                    | -                    | Yes      |
-| `TELEGRAM_TOPIC_ID`      | Forum topic ID (for supergroups with topics) | -                    | No       |
-| `INTERVAL_CHECK_ENABLED` | Enable per-interval spike detection          | `true`               | No       |
-| `CHECK_INTERVAL_MINUTES` | Traffic check interval in minutes            | `10`                 | No       |
-| `INTERVAL_THRESHOLD_GB`  | Spike alert threshold per interval (GB)      | `20`                 | No       |
-| `TOTAL_CHECK_ENABLED`    | Enable rolling total limit detection         | `true`               | No       |
-| `TOTAL_CHECK_HOURS`      | Rolling window for total check (hours)       | `24`                 | No       |
-| `TOTAL_THRESHOLD_GB`     | Total traffic alert threshold (GB)           | `100`                | No       |
-| `HOURLY_STATS_ENABLED`   | Enable hourly stats reports                  | `true`               | No       |
-| `LANGUAGE`               | Notification language (`en`, `ru`)           | `en`                 | No       |
-| `TIMEZONE`               | Timezone for timestamps                      | `Europe/Moscow`      | No       |
-| `TIME_FORMAT`            | Time format for timestamps                   | `%d.%m.%Y %H:%M:%S` | No       |
-| `MIN_TRAFFIC_GB`         | Ignore traffic diffs below this value (GB)   | `0.5`                | No       |
-| `TOP_NODES_LIMIT`        | Max nodes shown per alert                    | `5`                  | No       |
-| `API_PAGE_SIZE`          | Users per API page (max 1000)                | `1000`               | No       |
-| `REDIS_URL`              | Redis connection URL                         | `redis://redis:6379/0` | No     |
+| Variable                 | Description                                  | Default                | Required |
+|--------------------------|----------------------------------------------|------------------------|----------|
+| `REMNAWAVE_API_URL`      | Remnawave API endpoint                       | -                      | Yes      |
+| `REMNAWAVE_API_KEY`      | Remnawave API token                          | -                      | Yes      |
+| `TELEGRAM_BOT_TOKEN`     | Telegram bot token from @BotFather           | -                      | Yes      |
+| `TELEGRAM_CHAT_ID`       | Chat ID for notifications                    | -                      | Yes      |
+| `TELEGRAM_TOPIC_ID`      | Forum topic ID (for supergroups with topics) | -                      | No       |
+| `INTERVAL_CHECK_ENABLED` | Enable per-interval spike detection          | `true`                 | No       |
+| `CHECK_INTERVAL_MINUTES` | Traffic check interval in minutes            | `10`                   | No       |
+| `INTERVAL_THRESHOLD_GB`  | Spike alert threshold per interval (GB)      | `20`                   | No       |
+| `TOTAL_CHECK_ENABLED`    | Enable rolling total limit detection         | `true`                 | No       |
+| `TOTAL_CHECK_HOURS`      | Rolling window for total check (hours)       | `24`                   | No       |
+| `TOTAL_THRESHOLD_GB`     | Total traffic alert threshold (GB)           | `100`                  | No       |
+| `HOURLY_STATS_ENABLED`   | Enable hourly stats reports                  | `true`                 | No       |
+| `LANGUAGE`               | Notification language (`en`, `ru`)           | `en`                   | No       |
+| `TIMEZONE`               | Timezone for timestamps                      | `Europe/Moscow`        | No       |
+| `TIME_FORMAT`            | Time format for timestamps                   | `%d.%m.%Y %H:%M:%S`    | No       |
+| `MIN_TRAFFIC_GB`         | Ignore traffic diffs below this value (GB)   | `0.5`                  | No       |
+| `TOP_NODES_LIMIT`        | Max nodes shown per alert                    | `5`                    | No       |
+| `API_PAGE_SIZE`          | Users per API page (max 1000)                | `1000`                 | No       |
+| `REDIS_URL`              | Redis connection URL                         | `redis://redis:6379/0` | No       |
 
 ## Installation
 
@@ -129,7 +129,7 @@ services:
     volumes:
       - traffic-guard-redis-data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: [ 'CMD', 'redis-cli', 'ping' ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -191,15 +191,19 @@ python -m src
 
 1. **Startup** — Connects to Redis, sends a startup notification to Telegram with current thresholds
 
-2. **Periodic Check** — Every `CHECK_INTERVAL_MINUTES` minutes, fetches all users from the Remnawave API and compares current traffic against previous snapshots stored in Redis
+2. **Periodic Check** — Every `CHECK_INTERVAL_MINUTES` minutes, fetches all users from the Remnawave API and compares
+   current traffic against previous snapshots stored in Redis
 
-3. **Spike Detection** — If a user's traffic increase within a single interval exceeds `INTERVAL_THRESHOLD_GB`, sends an alert with per-node traffic breakdown
+3. **Spike Detection** — If a user's traffic increase within a single interval exceeds `INTERVAL_THRESHOLD_GB`, sends an
+   alert with per-node traffic breakdown
 
-4. **Total Limit Detection** — If a user's cumulative traffic over `TOTAL_CHECK_HOURS` hours exceeds `TOTAL_THRESHOLD_GB`, sends an alert
+4. **Total Limit Detection** — If a user's cumulative traffic over `TOTAL_CHECK_HOURS` hours exceeds
+   `TOTAL_THRESHOLD_GB`, sends an alert
 
 5. **Snapshot Update** — After each check, all user snapshots are written to Redis for the next cycle
 
-6. **Hourly Reports** — On each hour boundary, sends a summary with total/active users, traffic consumed, top user, and alert count
+6. **Hourly Reports** — On each hour boundary, sends a summary with total/active users, traffic consumed, top user, and
+   alert count
 
 ## Telegram Notifications
 
@@ -212,12 +216,12 @@ python -m src
 
 ### Notification Types
 
-| Event              | Description                                      |
-|--------------------|--------------------------------------------------|
-| **Traffic Spike**  | User exceeded interval threshold                 |
-| **Total Limit**    | User exceeded rolling total threshold            |
-| **Hourly Stats**   | Periodic report with traffic summary             |
-| **Service Start**  | Monitoring started with current configuration    |
+| Event             | Description                                   |
+|-------------------|-----------------------------------------------|
+| **Traffic Spike** | User exceeded interval threshold              |
+| **Total Limit**   | User exceeded rolling total threshold         |
+| **Hourly Stats**  | Periodic report with traffic summary          |
+| **Service Start** | Monitoring started with current configuration |
 
 ### Logs
 

@@ -15,11 +15,11 @@ GB = 1024 * 1024 * 1024
 
 class HourlyStatsCollector:
     def __init__(
-        self,
-        config: Config,
-        cache: RedisCache,
-        notifier: Notifier,
-        translator: Translator,
+            self,
+            config: Config,
+            cache: RedisCache,
+            notifier: Notifier,
+            translator: Translator,
     ):
         self._config = config
         self._cache = cache
