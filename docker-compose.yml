@@ -1,0 +1,28 @@
+x-common: &common
+  restart: unless-stopped
+  env_file:
+    - .env
+
+services:
+  remnawave-traffic-guard:
+    image: hteppl/remnawave-traffic-guard:latest
+    container_name: remnawave-traffic-guard
+    <<: *common
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:8-alpine
+    <<: *common
+    command: redis-server --appendonly yes
+    volumes:
+      - traffic-guard-redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  traffic-guard-redis-data:

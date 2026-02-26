@@ -1,0 +1,5 @@
+aiogram==3.25.0
+aiohttp==3.13.3
+redis[hiredis]==7.2.0
+fluent.runtime==0.4.0
+pytz==2025.2
