@@ -1,6 +1,4 @@
-from typing import Any
-
-import aiohttp
+from remnawave import RemnawaveSDK
 
 from ..utils import get_logger
 
@@ -9,68 +7,56 @@ logger = get_logger("traffic_guard")
 
 class RemnawaveClient:
     def __init__(self, api_url: str, api_token: str, page_size: int = 250):
-        self._base_url = api_url.rstrip("/")
-        self._token = api_token
+        self._sdk = RemnawaveSDK(base_url=api_url, token=api_token)
         self._page_size = page_size
-        self._session: aiohttp.ClientSession | None = None
-
-    async def _get_session(self) -> aiohttp.ClientSession:
-        if self._session is None or self._session.closed:
-            self._session = aiohttp.ClientSession(
-                headers={"Authorization": f"Bearer {self._token}"}
-            )
-        return self._session
 
     async def close(self):
-        if self._session and not self._session.closed:
-            await self._session.close()
+        await self._sdk._client.aclose()
 
-    async def fetch_all_users(self) -> list[dict[str, Any]]:
-        session = await self._get_session()
+    async def fetch_all_users(self) -> list[dict]:
+        # Raw request instead of sdk.users.get_all_users() to avoid Pydantic
+        # validation errors with older panel versions missing required fields.
         all_users: list[dict] = []
         start = 0
         page = 1
 
         while True:
             try:
-                async with session.get(
-                    f"{self._base_url}/users",
-                    params={"size": self._page_size, "start": start},
-                ) as resp:
-                    if resp.status != 200:
-                        logger.error(f"API returned status {resp.status}")
-                        break
+                resp = await self._sdk._client.get(
+                    "users", params={"start": start, "size": self._page_size},
+                )
+                resp.raise_for_status()
 
-                    result = await resp.json()
-                    data = result.get("data") or result.get("response") or result
+                body = resp.json()
+                data = body.get("response") or body.get("data") or body
 
-                    if not data or "users" not in data:
-                        break
+                if not data or "users" not in data:
+                    break
 
-                    users = data["users"]
-                    total = data.get("total", 0)
+                users = data["users"]
+                total = data.get("total", 0)
 
-                    for user in users:
-                        traffic = user.get("userTraffic") or {}
-                        lifetime_traffic = (
-                            user.get("lifetimeUsedTrafficBytes")
-                            or traffic.get("lifetimeUsedTrafficBytes")
-                            or 0
-                        )
-                        all_users.append({
-                            "uuid": user.get("uuid"),
-                            "username": user.get("username"),
-                            "telegramId": user.get("telegramId"),
-                            "lifetimeUsedTrafficBytes": lifetime_traffic,
-                        })
+                for user in users:
+                    traffic = user.get("userTraffic") or {}
+                    lifetime_traffic = (
+                        user.get("lifetimeUsedTrafficBytes")
+                        or traffic.get("lifetimeUsedTrafficBytes")
+                        or 0
+                    )
+                    all_users.append({
+                        "uuid": user.get("uuid"),
+                        "username": user.get("username"),
+                        "telegramId": user.get("telegramId"),
+                        "lifetimeUsedTrafficBytes": lifetime_traffic,
+                    })
 
-                    logger.info(f"Fetched batch {page}: {len(users)} users ({len(all_users)}/{total})")
+                logger.info(f"Fetched batch {page}: {len(users)} users ({len(all_users)}/{total})")
 
-                    start += len(users)
-                    page += 1
+                start += len(users)
+                page += 1
 
-                    if len(users) < self._page_size or start >= total:
-                        break
+                if len(users) < self._page_size or start >= total:
+                    break
 
             except Exception as e:
                 logger.error(f"Failed to fetch users: {e}")
@@ -84,35 +70,22 @@ class RemnawaveClient:
         start_date: str,
         end_date: str,
         top_nodes_limit: int = 10,
-    ) -> list[dict[str, Any]]:
-        session = await self._get_session()
-
+    ) -> list[dict]:
         try:
-            async with session.get(
-                f"{self._base_url}/bandwidth-stats/users/{user_uuid}",
-                params={
-                    "topNodesLimit": top_nodes_limit,
-                    "start": start_date,
-                    "end": end_date,
-                },
-            ) as resp:
-                if resp.status != 200:
-                    logger.debug(f"Bandwidth stats returned status {resp.status}")
-                    return []
-
-                result = await resp.json()
-                data = result.get("response") or result
-                top_nodes = data.get("topNodes") or []
-
-                return [
-                    {
-                        "name": node.get("name", "Unknown"),
-                        "country_code": node.get("countryCode", ""),
-                        "total": node.get("total", 0),
-                    }
-                    for node in top_nodes
-                ]
-
+            stats = await self._sdk.bandwidthstats.get_stats_user_usage(
+                uuid=user_uuid,
+                top_nodes_limit=top_nodes_limit,
+                start=start_date,
+                end=end_date,
+            )
+            return [
+                {
+                    "name": node.name,
+                    "country_code": node.country_code,
+                    "total": node.total,
+                }
+                for node in stats.response.top_nodes
+            ]
         except Exception as e:
             logger.debug(f"Failed to fetch node stats: {e}")
             return []

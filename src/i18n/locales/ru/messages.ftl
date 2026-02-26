@@ -21,7 +21,7 @@ nodes-info-header = <b>По серверам:</b>
 node-line = { $flag } { $name }: { $traffic_gb } ГБ
 
 hourly-stats =
-    📊 <b>Почасовой отчёт по трафику</b>
+    📊 <b>Почасовой отчет по трафику</b>
 
     <b>Всего пользователей:</b> { $total_users }
     <b>Активных:</b> { $active_users }
