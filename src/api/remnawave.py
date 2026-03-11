@@ -1,3 +1,5 @@
+import asyncio
+
 from remnawave import RemnawaveSDK
 
 from ..utils import get_logger
@@ -6,9 +8,10 @@ logger = get_logger("traffic_guard")
 
 
 class RemnawaveClient:
-    def __init__(self, api_url: str, api_token: str, page_size: int = 250):
+    def __init__(self, api_url: str, api_token: str, page_size: int = 1000, batch_delay: float = 1.0):
         self._sdk = RemnawaveSDK(base_url=api_url, token=api_token)
         self._page_size = page_size
+        self._batch_delay = batch_delay
 
     async def close(self):
         await self._sdk._client.aclose()
@@ -22,6 +25,9 @@ class RemnawaveClient:
 
         while True:
             try:
+                if page > 1 and self._batch_delay > 0:
+                    await asyncio.sleep(self._batch_delay)
+
                 resp = await self._sdk._client.get(
                     "users", params={"start": start, "size": self._page_size},
                 )

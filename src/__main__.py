@@ -21,7 +21,7 @@ class TrafficGuard:
         self._check_lock = asyncio.Lock()
 
         self._cache = RedisCache(config.redis_url)
-        self._remnawave = RemnawaveClient(config.remnawave_api_url, config.remnawave_api_key, config.api_page_size)
+        self._remnawave = RemnawaveClient(config.remnawave_api_url, config.remnawave_api_key, config.api_page_size, config.api_batch_delay)
         self._bot = Bot(token=config.telegram_bot_token)
         self._notifier = Notifier(config, self._bot)
         self._translator = Translator(config.language)

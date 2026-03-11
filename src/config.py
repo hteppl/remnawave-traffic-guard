@@ -22,6 +22,7 @@ class Config:
     min_traffic_gb: float = 0.5
     top_nodes_limit: int = 5
     api_page_size: int = 1000
+    api_batch_delay: float = 1.0
 
     hourly_stats_enabled: bool = True
 
@@ -48,6 +49,7 @@ class Config:
             min_traffic_gb=float(os.getenv("MIN_TRAFFIC_GB", "0.5")),
             top_nodes_limit=int(os.getenv("TOP_NODES_LIMIT", "5")),
             api_page_size=min(int(os.getenv("API_PAGE_SIZE", "1000")), 1000),
+            api_batch_delay=float(os.getenv("API_BATCH_DELAY", "1.0")),
             hourly_stats_enabled=os.getenv("HOURLY_STATS_ENABLED", "true").lower() == "true",
             language=os.getenv("LANGUAGE", "en"),
             timezone=os.getenv("TIMEZONE", "Europe/Moscow"),
