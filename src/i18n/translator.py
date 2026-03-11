@@ -18,7 +18,7 @@ class Translator:
             language = "en"
 
         self._language = language
-        self._bundle = FluentBundle([language])
+        self._bundle = FluentBundle([language], use_isolating=False)
 
         ftl_path = LOCALES_DIR / language / "messages.ftl"
         resource = FluentResource(ftl_path.read_text(encoding="utf-8"))
